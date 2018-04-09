@@ -28,7 +28,7 @@ firebase serve
 ### Deployment
 
 ```bash
-firebase deploy
+firebase deploy --only hosting
 ```
 
 ## Firebase Functions
