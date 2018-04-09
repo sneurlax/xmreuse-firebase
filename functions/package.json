@@ -1,0 +1,19 @@
+{
+  "name": "xmreuse-firebase",
+  "version": "0.0.0",
+  "description": "https://github.com/sneurlax/xmreuse as Firebase Functions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sneurlax/xmreuse/trees/master/functions"
+  },
+  "author": "sneurlax <sneurlax@gmail.com> (https://github.com/sneurlax)",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.16.3",
+    "firebase-admin": "^5.12.0"
+  }
+}
