@@ -80,7 +80,11 @@ server.get('/pools/list', (req, res) => {
 
 const api = functions.https.onRequest(server);
 server.use('/api', api);
+const scrape = functions.https.onRequest((req, res) => {
+  // ...
+});
 
 module.exports = {
-  api
+  api,
+  scrape
 }
