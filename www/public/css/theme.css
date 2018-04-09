@@ -1,0 +1,68 @@
+body {
+  margin: 1em; 
+  padding: 0;
+  background-color: #000;
+  color: rgba(255,255,255,0.777);
+  /* mrmrs css-system-fonts */
+  font-family: 'VeraMono',
+               -apple-system, BlinkMacSystemFont, /* MacOS and iOS */
+               'avenir next', avenir, /* MacOS and iOS */
+               'Segoe UI', /* Windows */
+               'lucida grande', /* Older MacOS */
+               'helvetica neue', helvetica, /* Older MacOS */
+               'Fira Sans', /* Firefox OS */
+               roboto, noto, /* Google stuff */
+               'Droid Sans', /* Old Google stuff */
+               cantarell, oxygen, ubuntu, /* Linux stuff */
+               'franklin gothic medium', 'century gothic', /* Windows stuff */
+               'Liberation Sans', /* Linux */
+               sans-serif; /* Everything else */
+}
+
+@font-face {
+  font-family: 'VeraMono';
+  src: url('../fonts/VeraMono.ttf') format('truetype'),
+     url('../fonts/VeraMono.woff2') format('woff2'),
+       url('../fonts/VeraMono.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+h1 {
+  font-weight: 200;
+  font-size: 32px;
+  letter-spacing: 5px;
+}
+h1 img {
+  height: 0.6em;
+  opacity: 0.777;
+}
+a {
+  transition: color 0.3s;
+  text-decoration: none;
+  -webkit-animation: colorchange 27s; /* Safari, Chrome and Opera > 12.1 */
+     -moz-animation: colorchange 27s; /* Firefox < 16 */
+      -ms-animation: colorchange 27s; /* Internet Explorer */
+       -o-animation: colorchange 27s; /* Opera < 12.1 */
+          animation: colorchange 27s;
+  animation-iteration-count: infinite;
+}
+
+i {
+  font-style: italic;
+}
+
+@keyframes colorchange {
+  0%   { color: #3f899e; border-color: #3f899e; }
+  25%  { color: #a73493; border-color: #a73493; }
+  50%  { color: #9cb83c; border-color: #9cb83c; }
+  75%  { color: rgba(255,255,255,0.777); border-color: rgba(255,255,255,0.777); }
+  100%  { color: #3f899e; border-color: #3f899e; }
+}
+@-webkit-keyframes colorchange { /* Safari and Chrome */
+  0%   { color: #3f899e; border-color: #3f899e; }
+  25%  { color: #a73493; border-color: #a73493; }
+  50%  { color: #9cb83c; border-color: #9cb83c; }
+  75%  { color: rgba(255,255,255,0.777); border-color: rgba(255,255,255,0.777); }
+  100%  { color: #3f899e; border-color: #3f899e; }
+}
