@@ -24,55 +24,55 @@ server.get(['', '/'], (req, res) => {
     world`);
 });
 
-server.get(['/block', '/api/block'], (req, res) => {
+server.get('/block', (req, res) => {
   res
   .status(200)
   .send(`Hello block ${req.query.block}`);
 });
 
-server.get(['/blocks', '/api/blocks'], (req, res) => {
+server.get('/blocks', (req, res) => {
   res
   .status(200)
   .send(`Hello blocks ${req.query.min} to ${req.query.max}`);
 });
 
-server.get(['/pool', '/api/pool'], (req, res) => {
+server.get('/pool', (req, res) => {
   res
   .status(200)
   .send(`Hello pool ${req.query.pool}`);
 });
 
-server.get(['/pools', '/api/pools'], (req, res) => {
+server.get('/pools', (req, res) => {
   res
   .status(200)
   .send(`Hello pools ${req.query.min} to ${req.query.max}`);
 });
 
-server.get(['/pool/block', '/api/pool/block'], (req, res) => {
+server.get('/pool/block', (req, res) => {
   res
   .status(200)
   .send(`Hello pool block ${req.query.pool}`);
 });
 
-server.get(['/pools/block', '/api/pools/block'], (req, res) => {
+server.get('/pools/block', (req, res) => {
   res
   .status(200)
   .send(`Hello pools block ${req.query.min} to ${req.query.max}`);
 });
 
-server.get(['/pool/blocks', '/api/pool/blocks'], (req, res) => {
+server.get('/pool/blocks', (req, res) => {
   res
   .status(200)
   .send(`Hello pool blocks ${req.query.pool}`);
 });
 
-server.get(['/pools/blocks', '/api/pools/blocks'], (req, res) => {
+server.get('/pools/blocks', (req, res) => {
   res
   .status(200)
   .send(`Hello pools blocks ${req.query.min} to ${req.query.max}`);
 });
 
-server.get(['/pools/list', '/api/pools/list'], (req, res) => {
+server.get('/pools/list', (req, res) => {
   res
   .status(200)
   .send(`Hello pools list`);
