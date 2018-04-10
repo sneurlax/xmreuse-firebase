@@ -33,7 +33,7 @@ var daemonRPC = new Monero.daemonRPC({ autoconnect: true })
   daemonRPC = daemon;
 
   console.log('Looking up list of pools...');
-  
+
   const poolsDocs = poolsRef.get()
   .then(snapshot => {
     console.log('Got list of pools');
@@ -94,6 +94,7 @@ function scrapePools(_pools) {
             // block.hash = blocks[j].hash;
             // let height = blocks[j].block_number;
 
+            // TODO skip blocks older than latest result
             pools[pool].blocks[blocks[j].block_number] = {
               coinbase_outs: []
             };
@@ -207,7 +208,7 @@ function findCoinbaseKeys(_pools, pool, _blocks) {
       if (gettransactions) {
         if ('txs' in gettransactions) {
           let txs = gettransactions['txs'];
-          for (let tx in txs) { 
+          for (let tx in txs) {
             if ('as_json' in txs[tx]) {
               let transaction = JSON.parse(txs[tx]['as_json']);
      
@@ -234,25 +235,28 @@ function findCoinbaseKeys(_pools, pool, _blocks) {
                     var poolRef = afs.collection('pool').doc(pool);
                     poolRef.set({ height: height }, { merge: true });
                   }
-
-                  var poolDoc = poolsRef.doc('Nanopool').get()
-                  .then(snapshot => {
-                    let doc = snapshot.data();
-                    let finds = 0;
-                    if ('finds' in doc) {
-                      finds = doc.finds;
-                    }
-                    finds++;
-                    var findsRef = afs.collection('pool').doc(pool);
-                    findsRef.set({ finds: finds }, { merge: true });
-                  })
-                  .catch(err => {
-                    console.log('Error getting pool document for finds', err);
-                  });
                 }
               }
             }
           }
+
+          var poolDoc = poolsRef.doc('Nanopool').get()
+          .then(snapshot => {
+            let doc = snapshot.data();
+            let finds = 0;
+            if ('finds' in doc) {
+              finds = doc.finds;
+            }
+            finds++;
+            var findsRef = afs.collection('pool').doc(pool);
+            findsRef.set({ finds: finds }, { merge: true });
+          })
+          .catch(err => {
+            console.log('Error getting pool document for finds', err);
+          });
+        } else {
+          // Re-scan block
+          _blocks.unshift(height);
         }
       } else {
         // Re-scan block
