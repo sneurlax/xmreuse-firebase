@@ -134,9 +134,39 @@ server.get('/pools/block', (req, res) => {
 });
 
 server.get('/pool/blocks', (req, res) => {
-  res
-  .status(200)
-  .send(`Hello pool blocks ${req.query.pool}`);
+  let pool = req.query.pool;
+
+  const poolRef = afs.collection('pool').doc(pool).collection('blocks');
+  console.log(`Looking up ${pool}'s block...`);
+
+  const blockDocs = poolRef.get()
+  .then(snapshot => {
+    console.log(`Got ${pool}'s block`);
+
+    if ('json' in req.query) {
+      let json = {};
+      snapshot.forEach(doc => {
+        json[doc.id] = doc.data();
+      });
+      res
+      .status(200)
+      .send(json);
+    } else {
+      let blocks = '';
+      snapshot.forEach(doc => {
+        // doc.data();
+        blocks = blocks.concat(`${doc.id}\n`);
+      });
+      res
+      .status(200)
+      .send(`${blocks}`);
+    }
+  })
+  .catch(err => {
+    res
+    .status(500)
+    .send(`Error getting ${pool}'s block`, err);
+  });
 });
 
 server.get('/pools/blocks', (req, res) => {
