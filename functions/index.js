@@ -10,13 +10,17 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://xmreuse.firebaseio.com'
 });
+var afs = admin.firestore();
 
 // ExpressJS server imports
 const url = require('url');
 const express = require('express');
-const server = express();
 
-// Return usage information
+// Monero imports
+// const Monero = require('moneronodejs');
+
+// API
+const server = express();
 server.get(['', '/'], (req, res) => {
   res
   .status(200)
@@ -80,9 +84,35 @@ server.get('/pools/list', (req, res) => {
 
 const api = functions.https.onRequest(server);
 server.use('/api', api);
-const scrape = functions.https.onRequest((req, res) => {
-  // ...
+
+// Scraper
+const scraper = express();
+scraper.get('/scrape', (req, res) => {
+  const Monero = require('moneronodejs');
+
+  return new Monero.daemonRPC({ autoconnect: true })
+  .then((daemonRPC) => {
+    daemonRPC.getblockcount()
+    .then(blocks => {
+      res
+      .status(200)
+      .send(`${blocks['count'] - 1}${test()}`);
+    });
+  })
+  .catch((error) => {
+    console.error(error);
+    res
+    .status(500)
+    .send(error);
+  });
 });
+
+function test() {
+  return 'ok';
+}
+
+const scrape = functions.https.onRequest(scraper);
+scraper.use('/scrape', scrape);
 
 module.exports = {
   api,

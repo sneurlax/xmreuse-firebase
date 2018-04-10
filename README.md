@@ -9,7 +9,15 @@ Install [firebase-tools](https://github.com/firebase/firebase-tools):
 npm install -g firebase-tools
 ```
 
-Login to Firebase:
+Test locally:
+
+```bash
+firebase serve --only hosting,functions # emulates local hosting code and local functions code
+```
+
+*(must use the `--only ...` flag to serve latest content)*
+
+Login to Firebase prior to deployment:
 
 ```bash
 firebase login
