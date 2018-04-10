@@ -13,8 +13,48 @@
 
   <body>
     <h1>xmreuse <a href="https://github.com/sneurlax/xmreuse"><img src="img/github.png"></a></h1>
-    <p>use /api</p>
+    <p>use /api/<i>method</i></p>
     <br>
-    <p><i>documentation coming soon</i></p>
+    <h2>API methods:</h2>
+    <br>
+    <dl>
+      <dt><h3><tt>pools/list</tt></h3></dt>
+      <dd>
+        <p>Get a list of pools</p>
+        <br>
+        <br>
+        <p>Parameters:</p>
+        <dl>
+          <dt><tt>json</tt> <i>boolean</i></dt>
+          <dd>Return JSON object (optional)</dd>
+        </dl>
+        <br>
+        <p>Return:</p>
+        <dl>
+          <p>List of pools, one per line or with more information if <tt>json</tt> is set</p>
+        </dl>
+      </dd>
+    </dl> 
+    <br>
+    <dl>
+      <dt><h3><tt>/pool/coinbase_outs</tt></h3></dt>
+      <dd>
+        <p>Get a pool's coinbase outputs</p>
+        <br>
+        <br>
+        <p>Parameters:</p>
+        <dl>
+          <dt><tt>pool</tt> <i>string</i></dt>
+          <dd>Pool to look up</dd>
+          <dt><tt>json</tt> <i>boolean</i></dt>
+          <dd>Return JSON object (optional)</dd>
+        </dl>
+        <br>
+        <p>Return:</p>
+        <dl>
+          <p>List of pool's coinbase outputs, one per line or with more information if <tt>json</tt> is set</p>
+        </dl>
+      </dd>
+    </dl> 
   </body>
 </html>

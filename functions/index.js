@@ -10,7 +10,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://xmreuse.firebaseio.com'
 });
-var afs = admin.firestore();
+const afs = admin.firestore();
 
 // ExpressJS server imports
 const url = require('url');
@@ -24,8 +24,7 @@ const server = express();
 server.get(['', '/'], (req, res) => {
   res
   .status(200)
-  .send(`Hello 
-    world`);
+  .send(`Hello world`);
 });
 
 server.get('/block', (req, res) => {
@@ -40,16 +39,86 @@ server.get('/blocks', (req, res) => {
   .send(`Hello blocks ${req.query.min} to ${req.query.max}`);
 });
 
+server.get('/pools/list', (req, res) => {
+  const poolsRef = afs.collection('pool');
+  console.log('Looking up list of pools...');
+
+  const poolsDocs = poolsRef.get()
+  .then(snapshot => {
+    console.log('Got list of pools');
+
+    if ('json' in req.query) {
+      let json = {};
+      snapshot.forEach(doc => {
+        json[doc.id] = doc.data();
+      });
+      res
+      .status(200)
+      .send(json);
+    } else {
+      let pools = '';
+      snapshot.forEach(doc => {
+        // doc.data();
+        pools = pools.concat(`${doc.id}\n`);
+      });
+      res
+      .status(200)
+      .send(`${pools}`);
+    }
+  })
+  .catch(err => {
+    res
+    .status(500)
+    .send('Error getting pool list', err);
+  });
+});
+
 server.get('/pool', (req, res) => {
   res
   .status(200)
   .send(`Hello pool ${req.query.pool}`);
 });
 
+server.get('/pool/coinbase_outs', (req, res) => {
+  let pool = req.query.pool;
+
+  const poolsRef = afs.collection('pool').doc(pool).collection('coinbase_outs');
+  console.log(`Looking up ${pool}'s coinbase outputs...`);
+
+  const coinbase_outsDocs = poolsRef.get()
+  .then(snapshot => {
+    console.log(`Got ${pool}'s coinbase outputs`);
+
+    if ('json' in req.query) {
+      let json = {};
+      snapshot.forEach(doc => {
+        json[doc.id] = doc.data();
+      });
+      res
+      .status(200)
+      .send(json);
+    } else {
+      let coinbase_outs = '';
+      snapshot.forEach(doc => {
+        // doc.data();
+        coinbase_outs = coinbase_outs.concat(`${doc.id}\n`);
+      });
+      res
+      .status(200)
+      .send(`${coinbase_outs}`);
+    }
+  })
+  .catch(err => {
+    res
+    .status(500)
+    .send(`Error getting ${pool}'s coinbase outputs`, err);
+  });
+});
+
 server.get('/pools', (req, res) => {
   res
   .status(200)
-  .send(`Hello pools ${req.query.min} to ${req.query.max}`);
+  .send(`Hello pools ${req.query.pool}`);
 });
 
 server.get('/pool/block', (req, res) => {
@@ -74,12 +143,6 @@ server.get('/pools/blocks', (req, res) => {
   res
   .status(200)
   .send(`Hello pools blocks ${req.query.min} to ${req.query.max}`);
-});
-
-server.get('/pools/list', (req, res) => {
-  res
-  .status(200)
-  .send(`Hello pools list`);
 });
 
 const api = functions.https.onRequest(server);
