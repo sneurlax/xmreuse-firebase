@@ -255,10 +255,14 @@ function findCoinbaseKeys(_pools, pool, _blocks) {
             console.log('Error getting pool document for finds', err);
           });
         } else {
+          console.log(`Error looking up coinbase output of ${pool}'s block ${height}, retrying...`);
+
           // Re-scan block
           _blocks.unshift(height);
         }
       } else {
+        console.log(`Error looking up coinbase output of ${pool}'s block ${height}, retrying...`);
+
         // Re-scan block
         _blocks.unshift(height);
       }
