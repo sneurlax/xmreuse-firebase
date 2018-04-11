@@ -1,6 +1,10 @@
 # xmreuse-firebase
 [xmreuse](https://github.com/sneurlax/xmreuse) formatted for Firebase hosting.
 
+```bash
+npm install -g firebase-tools && firebase serve --only hosting,functions
+```
+
 ## Getting started
 
 Install [firebase-tools](https://github.com/firebase/firebase-tools):
