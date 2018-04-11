@@ -71,9 +71,56 @@ function scrapePools(_pools) {
   console.log(`Looking up ${pool}'s finds...`);
 
   // Check blocks
-  if (pools[pool].format == 'nanopool') {
-    request({ uri: `${pools[pool].api}/pool/count_blocks`, json: true })
+  if (pools[pool].format == 'poolui') {
+    let limit = 1;
+    request({ uri: `${pools[pool].api}/pool/blocks?limit=${limit}`, json: true })
     .then((res1) => {
+      console.log(`Got ${pool}'s finds`);
+
+      let bloc = res1;
+      // console.log(blocks);
+
+      for (let k in bloc) {
+        console.log(bloc[k]);
+
+        let height = bloc[k].height;
+        let hash = bloc[k].hash;
+
+        pools[pool].blocks[height] = {
+          coinbase_outs: []
+          // hash: hash
+        };
+
+        // console.log(pools[pool].blocks);
+      }
+
+      console.log(pools[pool].blocks);
+      // TODO validate request success
+      // let count = res1.data.count;
+      // if (count > pools[pool].finds) {
+      //   console.log(`Looking up ${pool}'s blocks...`);
+      //   // console.log(`Need to process ${count - pools[pool].finds} new ${pool} blocks.`);
+      // }
+      // let blocks = res1.data;
+      // for (let j in blocks) {
+      //   let block = {};
+      //   block.height = blocks[j].block_number;
+      //   block.hash = blocks[j].hash;
+      //   let height = blocks[j].block_number;
+      //   // blocks.push
+      //   console.log(blocks[j]);
+
+      //   // TODO skip blocks older than latest result
+      //   // pools[pool].blocks[blocks[j].block_number] = {
+      //   //   coinbase_outs: []
+      //   // };
+      // }
+      // console.log(blocks, pools[pool]);
+    });
+    // TODO catch
+  } else if (pools[pool].format == 'nanopool') {
+    request({ uri: `${pools[pool].api}/pool/count_blocks`, json: true })
+    .then((res2) => {
       console.log(`Got ${pool}'s finds`);
 
       // TODO validate request success
