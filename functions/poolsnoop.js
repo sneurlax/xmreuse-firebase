@@ -72,6 +72,8 @@ function scrapePools(_pools) {
 
   // Check blocks
   if (pools[pool].format == 'poolui') {
+    // TODO get poolui-format pool height first
+
     let limit = 1;
     request({ uri: `${pools[pool].api}/pool/blocks?limit=${limit}`, json: true })
     .then((res1) => {
@@ -95,27 +97,13 @@ function scrapePools(_pools) {
       }
 
       console.log(pools[pool].blocks);
-      // TODO validate request success
-      // let count = res1.data.count;
-      // if (count > pools[pool].finds) {
-      //   console.log(`Looking up ${pool}'s blocks...`);
-      //   // console.log(`Need to process ${count - pools[pool].finds} new ${pool} blocks.`);
-      // }
-      // let blocks = res1.data;
-      // for (let j in blocks) {
-      //   let block = {};
-      //   block.height = blocks[j].block_number;
-      //   block.hash = blocks[j].hash;
-      //   let height = blocks[j].block_number;
-      //   // blocks.push
-      //   console.log(blocks[j]);
 
-      //   // TODO skip blocks older than latest result
-      //   // pools[pool].blocks[blocks[j].block_number] = {
-      //   //   coinbase_outs: []
-      //   // };
-      // }
-      // console.log(blocks, pools[pool]);
+      if (_pools.length > 0) {
+        scrapePools(_pools);
+      } else {
+        pool = poolList.slice(0)[0];
+        findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
+      }
     });
     // TODO catch
   } else if (pools[pool].format == 'nanopool') {
@@ -124,17 +112,18 @@ function scrapePools(_pools) {
       console.log(`Got ${pool}'s finds`);
 
       // TODO validate request success
-      let count = res1.data.count;
+      let count = res2.data.count;
       if (count > pools[pool].finds) {
         console.log(`Looking up ${pool}'s blocks...`);
         // console.log(`Need to process ${count - pools[pool].finds} new ${pool} blocks.`);
 
-        request({ uri: `${pools[pool].api}/pool/blocks/100000`, json: true })
-        .then((res2) => {
+        let limit = 1;
+        request({ uri: `${pools[pool].api}/pool/blocks/${limit}`, json: true })
+        .then((res3) => {
           console.log(`Got ${pool}'s blocks`);
 
           // TODO validate request success
-          let blocks = res2.data;
+          let blocks = res3.data;
           for (let j in blocks) {
             // let block = {};
             // block.height = blocks[j].block_number;
@@ -147,17 +136,22 @@ function scrapePools(_pools) {
             };
           }
 
+          console.log(pools[pool]);
           if (_pools.length > 0) {
             scrapePools(_pools);
           } else {
             pool = poolList.slice(0)[0];
-            findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
+            // findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
+            console.info('stopped at line 144(ish)')
           }
+        
+          console.log('?');
         })
         .catch((err) => {
           // API call failed...
         });
       }
+      console.log('eh?');
     })
     .catch((err) => {
       // API call failed...
@@ -174,9 +168,11 @@ function scrapePools(_pools) {
       pool = poolList.slice(0)[0];
       // console.log(Object.keys(pools[pool].blocks));
       // console.log(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
-      findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
+      // findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
+      console.info('stopped at line 168(ish)')
     }
   }
+  console.log('...');
 }
 
 function findCoinbaseTxs(_pools, pool, _blocks) {
