@@ -52,6 +52,31 @@ i {
   font-style: italic;
 }
 
+h2 {
+  font-size: 24px;
+}
+
+h3 tt {
+  font-size: 20px;
+  display: inline-block;
+  background-color: #333;
+  padding: 6px 8px;
+}
+tt {
+  margin: 4px 0;
+}
+dd dl {
+  padding: 1em;
+}
+dd dl dt {
+  display: inline-block;
+}
+
+dd dl dd {
+  display: inline-block;
+  padding: 0 1em;
+}
+
 @keyframes colorchange {
   0%   { color: #3f899e; border-color: #3f899e; }
   25%  { color: #a73493; border-color: #a73493; }
