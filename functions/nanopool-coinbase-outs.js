@@ -14,7 +14,7 @@ const afs = admin.firestore();
 
 // Core imports
 const request = require('request-promise');
-const Monero = require('moneronodejs');
+const Monero = require('monerojs');
 
 
 

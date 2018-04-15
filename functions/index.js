@@ -17,7 +17,7 @@ const url = require('url');
 const express = require('express');
 
 // Monero imports
-// const Monero = require('moneronodejs');
+// const Monero = require('monerojs');
 
 // API
 const server = express();
@@ -181,7 +181,7 @@ server.use('/api', api);
 // Scraper
 const scraper = express();
 scraper.get('/scrape', (req, res) => {
-  const Monero = require('moneronodejs');
+  const Monero = require('monerojs');
 
   return new Monero.daemonRPC({ autoconnect: true })
   .then((daemonRPC) => {

@@ -1,7 +1,32 @@
-'use strict'
+/**
+ * xmreuse/nodejs/poolsnoop
+ * 
+ * A script for scraping mining pool APIs in order to detect when mining pools use one of their own coinbases as an input in one of their own transactions using a combination of http/https requests and a Monero daemon's RPC API in Node.js
+ * https://github.com/sneurlax/xmreuse
+ *
+ * Overview:
+ *  If a mining pool announces the blocks that they find and if any of those coinbase outputs are later used in a ring signature in a transaction announced by that same pool, then the true output in that ring is probably the coinbase.  This script scrapes mining pool APIs in order to associate coinbase outputs with a particular pool, then scans those pools' transactions to see if they've moved their own outputs.
+ * 
+ * @author     sneurlax <sneurlax@gmail.com> (https://github.com/sneurlax)
+ * @copyright  2018
+ * @license    MIT
+ */
+ 'use strict'
+
+/**
+ * Globals
+ */
+
+var options;
+var pools = {};
+var poolList = [];
+
+// Core imports
+const request = require('request-promise');
+const Monero = require('monerojs');
 
 // Firebase imports
-const functions = require('firebase-functions')
+const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
 // Firebase credentials
@@ -12,46 +37,214 @@ admin.initializeApp({
 });
 const afs = admin.firestore();
 
-// Core imports
-const request = require('request-promise');
-const Monero = require('moneronodejs');
+/**
+ * Commandline parameters (optional)
+ */
 
+// Commandline options
+const commandLineArgs = require('command-line-args');
+const commandLineUsage = require('command-line-usage');
+const optionDefinitions = [
+  { 
+    name: 'hostname', 
+    alias: 'i', 
+    description: 'Daemon hostname (default: "127.0.0.1")', 
+    type: String, 
+    typeLabel: '{underline string}' 
+  }, 
+  { 
+    name: 'port', 
+    alias: 'p', 
+    description: 'Daemon port (default: 28083)', 
+    type: Number, 
+    typeLabel: '{underline number}' 
+  },
+  {
+    name: 'min',
+    description: 'Block height to start scrape (default: 0)',
+    type: Number,
+    typeLabel: '{underline Number}'
+  },
+  {
+    name: 'max',
+    description: 'Block height to end scrape (default: current height)', 
+    type: Number,
+    typeLabel: '{underline number}'
+  },
+  {
+    name: 'limit',
+    alias: 'l',
+    description: 'Number of blocks to scrape.  If set, overrides --min (optional)', 
+    type: Number,
+    typeLabel: '{underline number}'
+  },
+  {
+    name: 'all',
+    alias: 'A',
+    description: 'Scan all pools (optional)',
+    type: Boolean,
+    typeLabel: '{underline boolean}'
+  },
+  {
+    name: 'list',
+    description: 'List all pools (optional)',
+    type: Boolean,
+    typeLabel: '{underline boolean}'
+  },
+  {
+    name: 'verbose',
+    alias: 'v',
+    description: 'Print more information (default: false)',
+    type: Boolean,
+    typeLabel: '{underline boolean}'
+  },
+  {
+    name: 'help',
+    alias: 'h',
+    description: 'Print this usage guide.',
+    type: Boolean
+  }
+];
 
+/**
+ * Get list of pools
+ */
 
-// Global variables
-var pools = {};
-var poolList = [];
+console.log('Looking up list of pools...');
+
 const poolsRef = afs.collection('pool');
-
-
-
-console.log('Connecting to daemon...');
-
-var daemonRPC = new Monero.daemonRPC({ autoconnect: true })
-.then((daemon) => {
-  console.log('Connected to daemon');
-  daemonRPC = daemon;
-
-  console.log('Looking up list of pools...');
-
-  const poolsDocs = poolsRef.get()
-  .then(snapshot => {
-    console.log('Got list of pools');
-    snapshot.forEach(doc => {
-      // console.log(doc.id, '=>', doc.data());
-      pools[doc.id] = doc.data();
-      poolList.push(doc.id);
-    });
-    // console.log(pools);
-    scrapePools(poolList.slice(0)); // slice() to createa  copy of the array
-  })
-  .catch(err => {
-    console.log('Error getting documents', err);
+const poolsDocs = poolsRef.get()
+.then(snapshot => {
+  console.log('Got list of pools');
+  snapshot.forEach(doc => {
+    // console.log(doc.id, '=>', doc.data());
+    pools[doc.id] = doc.data();
+    poolList.push(doc.id);
   });
-}); 
+  // console.log(pools);
 
+  // Add pool APIs to options definitions
+  var poolOptions = [];
+  for (let pool in pools) {
+    let poolOption = pools[pool];
+    poolOption['name'] = pool.toLowerCase();
+    poolOption['description'] = `Scrape ${pool}`;
+    poolOption['type'] = String;
+    poolOption['typeLabel'] = `{underline boolean} (API format: ${poolOption['format']})`;
+    poolOptions.push(poolOption)
+    optionDefinitions.splice(-2, 0, poolOption);
+  }
 
+  options = commandLineArgs(optionDefinitions);
 
+  snoop();
+})
+.catch(err => {
+  console.log('Error getting documents', err);
+});
+
+/**
+ * Snoop!
+ */
+
+function snoop() {
+  // Help / usage
+  if (options.help) {
+    const sections = [
+      {
+        header: 'xmreuse/nodejs/poolsnoop',
+        content: `A script for scraping mining pool APIs in order to detect when mining pools use one of their own coinbases as an input in one of their own transactions using a combination of http/https requests and a Monero daemon's RPC API in Node.js`
+      },
+      {
+        header: 'Options',
+        optionList: optionDefinitions
+      }
+    ];
+    const usage = commandLineUsage(sections);
+    console.log(usage);
+    process.exit();
+  }
+
+  // List all pools
+  if (options.list) {
+    const sections = [
+      {
+        header: 'xmreuse/nodejs/poolsnoop --list',
+        content: 'The following pools can be scraped by this tool:\n\n{italic Submit requests for additional pools at:} {underline https://github.com/sneurlax/xmreuse/issues}'
+      },
+      {
+        header: 'Pools',
+        optionList: poolOptions
+      }
+    ];
+    const usage = commandLineUsage(sections);
+    console.log(usage);
+    process.exit();
+  }
+
+  // Format pools to scan into options.pools (so all pools can be scanned later by just iterating through options.pools)
+  let poolStrings = []; // Array of pool name strings
+  if (!options.all) {
+    for (let key in options) {
+      let index = Object.keys(Object.keys(pools).reduce((c, k) => (c[k.toLowerCase()] = pools[k], c), {})).indexOf(key); // Search pools as lowercase strings in case pool passed lowercase (ie., pools defined are defined as eg. 'SupportXMR', but we need to search by 'supportxmr', etc. etc.)
+      if (index > -1) {
+        if (!('pools' in options))
+          options.pools = [];
+        poolStrings.push(Object.keys(pools)[index]);
+        options.pools.push(Object.keys(pools)[index]);
+      }
+    }
+  }
+  if (!options.pools) {
+    poolStrings = Object.keys(pools);
+    options.pools = [];
+  }
+  // Format pools to scan into a string ... aesthetic//cosmetic only
+  let poolsString = '';
+  for (let pool in poolStrings) {
+    if (pool == poolStrings.length - 1) {
+      if (pool > 1) {
+        poolsString = poolsString.concat(`, and ${poolStrings[pool]}`);
+      } else {
+        poolsString = poolsString.concat(` and ${poolStrings[pool]}`);
+      }
+    } else {
+      if (pool > 0)
+        poolsString = poolsString.concat(`, `);    
+      poolsString = poolsString.concat(`${poolStrings[pool]}`);
+    }
+  }
+
+  if ((Object.keys(options).length === 0 && options.constructor === Object) && !(options.verbose && Object.keys(options).length == 1)) {
+    console.log(`No arguments specified, using defaults: scanning all pools (${poolsString}) and reporting reused coinbase outputs as KEY (1 per line)`);
+    console.log('Use the --help (or -h) commandline argument to show usage information.');
+    options.pools = Object.keys(pools);
+  } else {
+    if (options.all) {
+      if (options.verbose)
+        console.log(`Scanning all pools (${poolsString})`);
+    } else { // No pool specified or pool not categorized
+      if (options.pools) {
+        if (options.verbose)
+          console.log(`Scanning ${poolsString}`);
+      } else {
+        if (options.verbose)
+          console.log(`No pools specified, scanning all pools (${poolsString})`);
+        options.pools = Object.keys(pools);
+      }
+    }
+  }
+
+  console.log('Connecting to daemon...');
+
+  var daemonRPC = new Monero.daemonRPC({ autoconnect: true })
+  .then((daemon) => {
+    console.log('Connected to daemon');
+    daemonRPC = daemon;
+
+    scrapePools(options.pools); // slice() to create  copy of the array
+  }); 
+}
 
 
 function scrapePools(_pools) {
@@ -83,7 +276,7 @@ function scrapePools(_pools) {
       // console.log(blocks);
 
       for (let k in bloc) {
-        console.log(bloc[k]);
+        // console.log(bloc[k]);
 
         let height = bloc[k].height;
         let hash = bloc[k].hash;
@@ -96,13 +289,12 @@ function scrapePools(_pools) {
         // console.log(pools[pool].blocks);
       }
 
-      console.log(pools[pool].blocks);
-
       if (_pools.length > 0) {
         scrapePools(_pools);
       } else {
-        pool = poolList.slice(0)[0];
-        findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
+        console.log(options.pools);
+        pool = options.pools.slice(0)[0];
+        findCoinbaseTxs(options.pools.slice(0), pool, Object.keys(pools[pool].blocks));
       }
     });
     // TODO catch
@@ -137,12 +329,12 @@ function scrapePools(_pools) {
           }
 
           console.log(pools[pool]);
+
           if (_pools.length > 0) {
             scrapePools(_pools);
           } else {
             pool = poolList.slice(0)[0];
-            // findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
-            console.info('stopped at line 144(ish)')
+            findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
           }
         
           console.log('?');
@@ -168,8 +360,7 @@ function scrapePools(_pools) {
       pool = poolList.slice(0)[0];
       // console.log(Object.keys(pools[pool].blocks));
       // console.log(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
-      // findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
-      console.info('stopped at line 168(ish)')
+      findCoinbaseTxs(poolList.slice(0), pool, Object.keys(pools[pool].blocks));
     }
   }
   console.log('...');
@@ -273,11 +464,6 @@ function findCoinbaseKeys(_pools, pool, _blocks) {
 
                   var blockRef = afs.collection('pool').doc(pool).collection('blocks').doc(height);
                   blockRef.set(pools[pool].blocks[height], { merge: true });
-
-                  if (height > pools[pool].height) {
-                    var poolRef = afs.collection('pool').doc(pool);
-                    poolRef.set({ height: height }, { merge: true });
-                  }
                 }
               }
             }
