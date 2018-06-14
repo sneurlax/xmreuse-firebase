@@ -71,26 +71,28 @@ openssl aes-256-cbc -d -in xmreuse-firebase-adminsdk-y70sg-06f6efcb9f.json.enc -
 
 ## Firestore Data Structure
 
-  /* See data at https://console.firebase.google.com/project/xmreuse/database/firestore/data
-   *
-   * xmreuse
-   * ├── pool: collection
-   * ·   ├── Nanopool: document                                                  // Pool name
-   *     ·   ├── api: string = true                                              // API url
-   *         ├── ceiling: number = 1550003                                       // Highest (maximum) block height mined by pool
-   *         ├── finds: number   = 1399                                          // Number of blocks scraped as mined by pool
-   *         ├── floor: number   = 1461842                                       // Lowest (minimum) block height mined by pool
-   *         ├── format: string  = 'nanopool'                                    // Pool API format, eg. 'poolui,' 'node-cryptonote-pool,' 'nanopool,' etc.
-   *         ├── height: number  = 1558898                                       // Blockchain height of mining pool daemon
-   *         ├── coinbase_outs: collection                                       // Coinbase outputs scraped as mined by pool
-   *         │   ├── 008ef36a18b113f93224b00aa07d4981d6a5923bfed8ea65e5d22f7c56ba1632: document // Coinbase output public key
-   *         │   ·   └── height: number = 1547572                                // Blockheight from which this output was mined
-   *         ├── coinbases: collection                                           // Coinbases (coinbase transactions, eg. miner_tx_hash(es)) scraped as mined by pool
-   *         │   ├── 00349c6cd5368c08e54c448b8dbcd9e31b796dee9e1879b7e63d6f322b92d8b0: document // Transaction ID (miner_tx_hash)                                      // TODO update example
-   *         │   ·   └── height: number = 1461842                                // Blockheight of transcation
-   *         ├── txs: collection                                                  // Transactions scraped as mined by pool
-   *         │   ├── 00349c6cd5368c08e54c448b8dbcd9e31b796dee9e1879b7e63d6f322b92d8b0: document // Transaction ID                                                      // TODO update example
-   *         │   ·   └── height: number = 1461842                                // Blockheight of transcation
-   *         ·
-   *
-   */
+```
+/* See data at https://console.firebase.google.com/project/xmreuse/database/firestore/data
+ *
+ * xmreuse
+ * ├── pool: collection
+ * ·   ├── Nanopool: document                                                  // Pool name
+ *     ·   ├── api: string = true                                              // API url
+ *         ├── ceiling: number = 1550003                                       // Highest (maximum) block height mined by pool
+ *         ├── finds: number   = 1399                                          // Number of blocks scraped as mined by pool
+ *         ├── floor: number   = 1461842                                       // Lowest (minimum) block height mined by pool
+ *         ├── format: string  = 'nanopool'                                    // Pool API format, eg. 'poolui,' 'node-cryptonote-pool,' 'nanopool,' etc.
+ *         ├── height: number  = 1558898                                       // Blockchain height of mining pool daemon
+ *         ├── coinbase_outs: collection                                       // Coinbase outputs scraped as mined by pool
+ *         │   ├── 008ef36a18b113f93224b00aa07d4981d6a5923bfed8ea65e5d22f7c56ba1632: document // Coinbase output public key
+ *         │   ·   └── height: number = 1547572                                // Blockheight from which this output was mined
+ *         ├── coinbases: collection                                           // Coinbases (coinbase transactions, eg. miner_tx_hash(es)) scraped as mined by pool
+ *         │   ├── 00349c6cd5368c08e54c448b8dbcd9e31b796dee9e1879b7e63d6f322b92d8b0: document // Transaction ID (miner_tx_hash)                                      // TODO update example
+ *         │   ·   └── height: number = 1461842                                // Blockheight of transcation
+ *         ├── txs: collection                                                  // Transactions scraped as mined by pool
+ *         │   ├── 00349c6cd5368c08e54c448b8dbcd9e31b796dee9e1879b7e63d6f322b92d8b0: document // Transaction ID                                                      // TODO update example
+ *         │   ·   └── height: number = 1461842                                // Blockheight of transcation
+ *         ·
+ *
+ */
+```
