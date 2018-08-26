@@ -7,13 +7,22 @@ npm install -g firebase-tools && firebase serve --only hosting,functions
 
 ## Getting started
 
+Works with Node.js v9.  `grpc`, a dependency, will not build under Node.js v10 without some hacking.
+
 Install [firebase-tools](https://github.com/firebase/firebase-tools):
 
 ```bash
 npm install -g firebase-tools
 ```
 
-Test locally:
+Install local dependencies from within `/functions`:
+
+```bash
+cd functions
+npm install
+```
+
+Test locally from the repository root:
 
 ```bash
 firebase serve --only hosting,functions # emulates local hosting code and local functions code
