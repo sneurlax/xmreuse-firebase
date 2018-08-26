@@ -1,3 +1,12 @@
+/**
+ * xmreuse-firebase/functions/nanopool-coinbase-outs
+ * 
+ * Scrapes Nanopool for reused coinbase outputs
+ * 
+ * @author     sneurlax <sneurlax@gmail.com> (https://github.com/sneurlax)
+ * @copyright  2018
+ * @license    MIT
+ */
 'use strict'
 
 // Firebase imports
