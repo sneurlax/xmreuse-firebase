@@ -1,3 +1,15 @@
+/**
+ * xmreuse-firebase/functions
+ * 
+ * https://github.com/sneurlax/xmreuse formatted for Firebase hosting
+ *
+ * Provides an API which serves pool coinbase outputs that have been clearly reused.
+ * Lists previously-stored data from the xmreuse Firestore instance.  /scrape populates Firestore. 
+ * 
+ * @author     sneurlax <sneurlax@gmail.com> (https://github.com/sneurlax)
+ * @copyright  2018
+ * @license    MIT
+ */
 'use strict'
 
 // Firebase imports
