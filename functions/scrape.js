@@ -484,21 +484,22 @@ function scanTransactions(_pools, pool, txs) {
             }
           }
         } else {
-         // TODO handle 
+          // Re-scan tx
+          txs.unshift(txid);
         }
       });
     } else {
       console.log(`${pool}'s tx ${txid} already exists, skipping`);
+    }
 
-      if (txs.length > 0) {
-        scanTransactions(_pools, pool, txs);
+    if (txs.length > 0) {
+      scanTransactions(_pools, pool, txs);
+    } else {
+      if (_pools.length > 0) {
+        pool = _pools.shift();
+        scanTransactions(_pools, pool, pools[pool].payments);
       } else {
-        if (_pools.length > 0) {
-          pool = _pools.shift();
-          scanTransactions(_pools, pool, pools[pool].payments);
-        } else {
-          checkInputs(_pools, pool, pools[pool].formatted_offsets);
-        }
+        checkInputs(_pools, pool, pools[pool].formatted_offsets);
       }
     }
   });
