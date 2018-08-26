@@ -353,7 +353,6 @@ function findCoinbaseKeys(_pools, pool, _blocks) {
           pool = _pools.shift();
           findCoinbaseKeys(_pools, pool, Object.keys(pools[pool].blocks));
         } else {
-          console.log(1);
           scrapeTransactions(poolList.slice(0));
         }
       }
@@ -412,13 +411,13 @@ function scrapeTransactions(_pools) {
 function scanTransactions(_pools, pool, txs) {
   let txid = txs.shift();
 
-  // check if tx document already exists
-  let txRef = afs.collection('pool').doc(pool).collection('txs').doc(txid);
-  let txDoc = txRef.get()
-  .then(doc => {
-    console.log(`Got ${pool}'s tx ${txid}`);
+  // // check if tx document already exists
+  // let txRef = afs.collection('pool').doc(pool).collection('txs').doc(txid);
+  // let txDoc = txRef.get()
+  // .then(doc => {
+  //   console.log(`Got ${pool}'s tx ${txid}`);
 
-    if (!doc.exists) {
+  //   if (!doc.exists) {
       console.log(`Requesting information for ${pool}\'s txid ${txid} to find offsets of inputs...`);
 
       daemonRPC.gettransactions([txid])
@@ -488,9 +487,9 @@ function scanTransactions(_pools, pool, txs) {
           txs.unshift(txid);
         }
       });
-    } else {
-      console.log(`${pool}'s tx ${txid} already exists, skipping`);
-    }
+    // } else {
+    //   console.log(`${pool}'s tx ${txid} already exists, skipping`);
+    // }
 
     if (txs.length > 0) {
       scanTransactions(_pools, pool, txs);
@@ -502,7 +501,7 @@ function scanTransactions(_pools, pool, txs) {
         checkInputs(_pools, pool, pools[pool].formatted_offsets);
       }
     }
-  });
+  // });
 }
 
 // Check if any vins reuse an earlier coinbase output
@@ -566,7 +565,7 @@ function checkInputs(_pools, pool, offsets) {
           checkInputs(_pools, pool, pools[_pools[0]].formatted_offsets);
         } else {
           // TODO output with formatting
-          console.log(1);
+          console.log(10);
         }
       }
     });
@@ -575,7 +574,7 @@ function checkInputs(_pools, pool, offsets) {
       checkInputs(_pools, pool, pools[_pools[0]].formatted_offsets);
     } else {
       // TODO output with formatting
-      console.log(2);
+      console.log(20);
     }
   }
 }
